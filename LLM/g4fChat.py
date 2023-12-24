@@ -2,10 +2,6 @@ import g4f
 import fasterProvider
 import asyncio
 
-import g4f
-import fasterProvider
-import asyncio
-
 class g4fChat:
     def __init__(self, getFasterProviders=False, saveDialog=False):
         self.history = [{"role": "user", "content": "Имя пользователя: Ваня. Имя ассистента (тебя): Рендольф"}]
