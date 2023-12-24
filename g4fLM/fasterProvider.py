@@ -9,7 +9,18 @@ import time
 #         _providers += f'g4f.Provider.{i[:-3]},\n'
 # print(_providers)
 
-_providers = [
+
+
+
+
+        
+
+
+
+
+class GetProviders:
+    def __init__(self) -> None:
+        self._providers = [
     g4f.Provider.AiAsk,
     g4f.Provider.Aichat,        
     g4f.Provider.AiChatOnline,  
@@ -56,29 +67,39 @@ _providers = [
     g4f.Provider.You,
     g4f.Provider.Yqcloud
 ]
+        self.fasters = []
 
-fasters = []
+    async def run_provider(self, provider: g4f.Provider.BaseProvider):
+        startTime = time.time()
+        try:
+            response = await g4f.ChatCompletion.create_async(
+                model=g4f.models.default,
+                messages=[{"role": "user", "content": "Hello"}],
+                provider=provider,
+            )
+            timeEnd = round(time.time() - startTime, 2)
+            print(f"{provider.__name__}:", 'работает за', timeEnd, 'секунд\n', response)
+            
+            if timeEnd <= 10:
+                self.fasters.append(provider)
+        except Exception as e:
+            pass
 
-async def run_provider(provider: g4f.Provider.BaseProvider):
-    startTime = time.time()
-    try:
-        response = await g4f.ChatCompletion.create_async(
-            model=g4f.models.default,
-            messages=[{"role": "user", "content": "Hello"}],
-            provider=provider,
-        )
-        print(f"{provider.__name__}:", 'работает за', round(time.time() - startTime, 2), 'секунд\n', response)
-        fasters.append(f'g4f.Provider.{provider.__name__},')
-    except Exception as e:
-        pass
-        
-async def run_all():
-    calls = [
-        run_provider(provider) for provider in _providers
-    ]
-    await asyncio.gather(*calls)
+    async def run_all(self):
+        calls = [
+            self.run_provider(provider) for provider in self._providers
+        ]
+        await asyncio.gather(*calls)
 
-    for faster in fasters:
-        print(faster)
 
-asyncio.run(run_all())
+    def get_fasters(self):
+        return self.fasters
+
+async def main():
+    getProviders = GetProviders()
+    await getProviders.run_all()
+
+    print(getProviders.fasters)
+
+if __name__ == '__main__':
+    asyncio.run(main())
